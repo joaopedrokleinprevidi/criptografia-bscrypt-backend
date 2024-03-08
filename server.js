@@ -1,6 +1,10 @@
 const express = require("express");
 const app = express();
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const tokenS = process.env.TOKEN_PASSWORD;
 
 app.use(express.json());
 
@@ -29,9 +33,16 @@ app.post("/users/login", async (request, response) => {
 
   try {
     if (await bcrypt.compare(request.body.password, user.password)) {
-      response.send("Logou com sucesso");
+      const user = {
+        userId: "8",
+      };
+
+      const token = jwt.sign(user, tokenS, {
+        expiresIn: "1hr",
+      });
+      return response.json({ token, message: "ok" });
     } else {
-      response.send("Não deu certo :(");
+      return response.send("Não deu certo :(");
     }
   } catch {
     response.status(500).send();
